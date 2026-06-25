@@ -2,6 +2,7 @@
 // Two AI features: Notice Summarizer + AI Study Buddy (flashcards)
 // Both call Groq's API which is OpenAI-compatible and very fast.
 
+require('dotenv').config();
 const axios = require('axios');
 
 // Helper: makes one call to Groq
@@ -49,6 +50,16 @@ Format:
 Do not add any extra text before or after the bullet points.`;
 
     const summary = await callGroq(systemPrompt, notice);
+
+    // Trigger n8n Workflow 2 — broadcasts summary via WhatsApp + Calendar
+    try {
+      await axios.post(process.env.N8N_SUMMARIZE_WEBHOOK_URL, {
+        summary: summary,
+        userEmail: req.user.email,
+      });
+    } catch (err) {
+      console.warn('n8n summarize webhook failed:', err.message);
+    }
 
     return res.status(200).json({ summary });
   } catch (err) {

@@ -53,7 +53,7 @@ const createTask = async (req, res) => {
     // 2. Trigger n8n webhook — this is what sends WhatsApp + adds to Google Calendar
     //    We do this in a try/catch so if n8n fails, the task is still saved
     try {
-      await axios.post(`${process.env.N8N_WEBHOOK_URL}/task-created`, {
+      await axios.post(process.env.N8N_WEBHOOK_URL, {
         taskId: task.id,
         title: task.title,
         deadline: task.deadline,
